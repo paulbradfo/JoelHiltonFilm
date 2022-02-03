@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Film Collection";
+}
+
+@model List<FormResponse>
+
+<h2>The Joel Hilton Film Collection</h2><br />
+
+<table class="table table-bordered table-striped">
+
+    <thead class="font-weight-bold table-primary">
+        <tr>
+            <td>Category</td>
+            <td>Title</td>
+            <td>Year</td>
+            <td>Director</td>
+            <td>Rating</td>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var n in Model)
+            {
+                <tr>
+                    <td>@n.Category.CatName</td>
+                    <td>@n.Title</td>
+                    <td>@n.Year</td>
+                    <td>@n.Director</td>
+                    <td>@n.Rating</td>
+
+                    <td><a asp-controller="Home" asp-action="Edit" asp-route-applicationid="@n.ApplicationId">Edit</a></td>
+                    <td><a asp-controller="Home" asp-action="Delete" asp-route-applicationid="@n.ApplicationId">Delete</a></td>
+                </tr>
+            }
+    </tbody>
+
+</table>

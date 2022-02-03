@@ -1,5 +1,6 @@
 ﻿using JoelHiltonFilm.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,10 @@ namespace JoelHiltonFilm.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private FilmContext FilmCont { get; set; }
 
-        public HomeController(ILogger<HomeController> logger, FilmContext x)
+        public HomeController(FilmContext x)
         {
-            _logger = logger;
             FilmCont = x;
         }
 
@@ -28,16 +27,27 @@ namespace JoelHiltonFilm.Controllers
         [HttpGet]
         public IActionResult AddMovie()
         {
+            ViewBag.Categories = FilmCont.Categories.ToList();
+
             return View();
         }
 
         [HttpPost]
         public IActionResult AddMovie(FormResponse ar)
         {
-            FilmCont.Add(ar);
-            FilmCont.SaveChanges();
+            if (ModelState.IsValid)
+            {
+                FilmCont.Add(ar);
+                FilmCont.SaveChanges();
 
-            return View("AddConfirm", ar);
+                return RedirectToAction("FilmList");
+            }
+            else
+            {
+                ViewBag.Categories = FilmCont.Categories.ToList();
+
+                return View();
+            }
         }
 
         public IActionResult Podcasts()
@@ -45,10 +55,49 @@ namespace JoelHiltonFilm.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpGet]
+        public IActionResult FilmList ()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var applications = FilmCont.responses
+                .Include(x => x.Category)
+                .ToList();
+            return View(applications);
+        }
+
+        [HttpGet]
+        public IActionResult Edit (int applicationid)
+        {
+            ViewBag.Categories = FilmCont.Categories.ToList();
+
+            var application = FilmCont.responses.Single(x => x.ApplicationId == applicationid);
+
+            return View("AddMovie", application);
+        }
+
+        [HttpPost]
+        public IActionResult Edit (FormResponse fr)
+        {
+            FilmCont.Update(fr);
+            FilmCont.SaveChanges();
+
+            return RedirectToAction("FilmList");
+        }
+
+        [HttpGet]
+        public IActionResult Delete (int applicationid)
+        {
+            var application = FilmCont.responses.Single(x => x.ApplicationId == applicationid);
+
+            return View(application);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(FormResponse fr)
+        {
+            FilmCont.responses.Remove(fr);
+            FilmCont.SaveChanges();
+
+            return RedirectToAction("FilmList");
         }
     }
 }

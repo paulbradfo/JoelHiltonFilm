@@ -13,9 +13,6 @@ namespace JoelHiltonFilm.Models
         public int ApplicationId { get; set; }
 
         [Required]
-        public string Category { get; set; }
-
-        [Required]
         public string Title { get; set; }
 
         [Required]
@@ -26,5 +23,8 @@ namespace JoelHiltonFilm.Models
 
         [Required]
         public string Rating { get; set; }
+
+        public int CategoryID { get; set; }
+        public Category Category { get; set; }
     }
 }
